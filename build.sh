@@ -68,10 +68,9 @@ for PKG_PATH in $(catkin_topological_order --only-folders); do
     exit 0
   fi
 
-  # Set the version based on the checked out tag
-  # git tags with slashes will be reduced to their last component for convenience
-  # as release versions should not contain '/' anyway
-  sed -i "1 s@([^)]*)@($(git describe --tag 2>/dev/null || echo 0 | sed 's@.*/@@')-$(date +%Y.%m.%d.%H.%M))@" debian/changelog
+  # Set the version based on the checked out tag that contain at least on digit
+  # strip any leading non digits as they are not part of the version number
+  sed -i "1 s@([^)]*)@($( (git describe --tag  --match "*[0-9]*" 2>/dev/null || echo 0) | sed 's@^[^0-9]*@@')-$(date +%Y.%m.%d.%H.%M))@" debian/changelog
 
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat
